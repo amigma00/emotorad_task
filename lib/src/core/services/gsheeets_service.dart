@@ -1,55 +1,55 @@
 // import 'package:googleapis/sheets/v4.dart' as sheets;
 // import 'package:googleapis_auth/auth_io.dart';
 import 'dart:convert';
+import 'package:emotorad_task/src/core/services/service_locator.dart';
+import 'package:emotorad_task/src/core/services/shared_services.dart';
+import 'package:emotorad_task/src/models/employee_entry.dart';
 import 'package:flutter/services.dart';
 import 'package:gsheets/gsheets.dart';
 
 class GoogleSheetsService {
-  bool isInitialized = false; // Track initialization
-  static const String _spreadsheetId =
-      "1x6e9JXDz3cj7xu3K13ox_d6f_V-FRlObwxpX2ivEro4";
-  // sheets.SheetsApi? sheetsApi; // Nullable to avoid late initialization error
-  GSheets? gSheets;
-  late Spreadsheet? ss;
-
-  GoogleSheetsService() {
-    init();
-  }
-
-  Future init() async {
-    await _initialize();
-  }
-
-  /// Initialize Google Sheets API**
-  Future<void> _initialize() async {
-    if (isInitialized) return; // Prevent multiple initializations
-
+  static Future<Spreadsheet> initialize() async {
+    const String spreadsheetId = "1x6e9JXDz3cj7xu3K13ox_d6f_V-FRlObwxpX2ivEro4";
     try {
       final credentials = jsonDecode(await rootBundle
           .loadString('assets/emotorad-task-aea5a30fae16.json'));
-
-      gSheets = GSheets(credentials);
-
-      ss = await gSheets?.spreadsheet(_spreadsheetId);
-
-      // sheetsApi = sheets.SheetsApi(client); // Initialize API
-      isInitialized = true;
+      GSheets gSheets = GSheets(credentials);
+      Spreadsheet ss = await gSheets.spreadsheet(spreadsheetId);
       print("Google Sheets initialized successfully!");
+
+      final todayDate = DateTime.now().toString().split(' ')[0];
+      final existingSheet =
+          await ss.worksheetByTitle(todayDate)?.values.allRows();
+      if (existingSheet == null) {
+        DateTime now = DateTime.now();
+        DateTime nineAM = DateTime(now.year, now.month, now.day, 9, 0, 0);
+        DateTime sixPM = DateTime(now.year, now.month, now.day, 18, 0, 0);
+        final newSheet = await ss.addWorksheet(todayDate);
+        final employees = sl<SharedPref>().getEmployees();
+        for (int i = 0; i < employees.length; i++) {
+          await newSheet.values.appendRow([
+            employees[i],
+            nineAM.toIso8601String(),
+            sixPM.toIso8601String()
+          ]);
+        }
+      }
+      return ss;
     } catch (e) {
       print("Error initializing Google Sheets: $e");
       throw Exception("Failed to initialize Google Sheets");
     }
   }
+}
+
+class GoogleSheetsApis {
+  final Spreadsheet _ss;
+  GoogleSheetsApis(this._ss);
 
   /// Fetch Attendance Data**
   Future<List<List<String>>> fetchAttendanceData(String date) async {
-    if (gSheets == null) {
-      throw Exception("GoogleSheetsService is not initialized.");
-    }
-
     try {
-      final response = ss?.worksheetByTitle(date)?.values.allRows();
-
+      final response = await _ss.worksheetByTitle(date)?.values.allRows();
       return response ?? [];
     } catch (e) {
       print("Error fetching attendance data: $e");
@@ -58,26 +58,26 @@ class GoogleSheetsService {
   }
 
   /// **Update Attendance**
-  Future<void> updateAttendance(
-      {required String employeeName,
-      required String checkIn,
-      required String checkOut,
-      required String date}) async {
-    if (gSheets == null) {
-      throw Exception(
-          "GoogleSheetsService has not been initialized. Call initialize() first.");
-    }
-
-    final worksheet = ss?.worksheetByTitle(date);
-    await worksheet?.values.insertRow(1, [employeeName, checkIn, checkOut]);
-
+  Future<bool> updateAttendance({
+    required EmployeeEntry entry,
+    required String date,
+    required int row,
+  }) async {
+    final worksheet = _ss.worksheetByTitle(date);
+    final response = await worksheet?.values.insertRow(
+        row + 1, [entry.employeeName, entry.checkIn, entry.checkOut]);
     print("Attendance updated successfully!");
+    return response ?? false;
   }
 
-  Future<void> addEmployee(String employeeName, String date) async {
-    if (gSheets == null) {
-      throw Exception("GoogleSheetsService is not initialized.");
-    }
+  Future<void> addEmployee({
+    required String employeeName,
+    required String checkIn,
+    required String checkOut,
+    required String date,
+  }) async {
+    final worksheet = _ss.worksheetByTitle(date);
+    await worksheet?.values.appendRow([employeeName, checkIn, checkOut]);
   }
 
   // Future<void> removeEmployee(String employeeName) async {

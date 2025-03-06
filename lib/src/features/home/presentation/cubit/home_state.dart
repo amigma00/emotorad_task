@@ -8,7 +8,7 @@ class HomeInitial extends HomeState {}
 class HomeLoading extends HomeState {}
 
 class HomeLoaded extends HomeState {
-  final List<List<String>> data;
+  final List<EmployeeEntry> data;
 
   HomeLoaded({required this.data});
 }

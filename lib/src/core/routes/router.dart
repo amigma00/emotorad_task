@@ -16,7 +16,7 @@ class AppRouter {
           routes: [
             GoRoute(
               path: '/home',
-              builder: (context, state) => const HomePage(),
+              builder: (context, state) => HomePage(),
             ),
             GoRoute(
               path: '/records',

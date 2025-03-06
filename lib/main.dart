@@ -2,9 +2,9 @@ import 'package:emotorad_task/src/core/routes/router.dart';
 import 'package:emotorad_task/src/core/services/service_locator.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupLocator();
+  await setupLocator();
   runApp(const MainApp());
 }
 
