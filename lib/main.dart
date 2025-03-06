@@ -1,7 +1,10 @@
 import 'package:emotorad_task/src/core/routes/router.dart';
+import 'package:emotorad_task/src/core/services/service_locator.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
   runApp(const MainApp());
 }
 
@@ -10,13 +13,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: AppRouter.router,
-      // builder: (context, child) => Scaffold(
-      //   body: Center(
-      //     child: Text('Hello World!'),
-      //   ),
-      // ),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: MaterialApp.router(
+        routerConfig: AppRouter.router,
+      ),
     );
   }
 }
