@@ -17,6 +17,33 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('Home Page'),
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(50),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: SizedBox(
+                    width: 200,
+                    child: DropdownButton(
+                        isExpanded: true,
+                        underline: SizedBox.shrink(),
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        borderRadius: BorderRadius.circular(100),
+                        value: 'aman',
+                        items: [
+                          DropdownMenuItem(
+                            child: Text('Aman'),
+                            value: 'aman',
+                          )
+                        ],
+                        onChanged: (x) {}),
+                  )).paddingSymmetric(horizontal: 16, vertical: 8),
+            ),
+          ),
         ),
         body: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) {
