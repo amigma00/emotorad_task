@@ -64,8 +64,11 @@ class GoogleSheetsApis {
     required int row,
   }) async {
     final worksheet = _ss.worksheetByTitle(date);
-    final response = await worksheet?.values.insertRow(
-        row + 1, [entry.employeeName, entry.checkIn, entry.checkOut]);
+    final response = await worksheet?.values.insertRow(row + 1, [
+      entry.employeeName,
+      entry.checkIn.toString(),
+      entry.checkOut.toString()
+    ]);
     print("Attendance updated successfully!");
     return response ?? false;
   }

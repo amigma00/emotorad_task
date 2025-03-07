@@ -134,7 +134,7 @@ class HomePage extends StatelessWidget {
             TableCell(
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: Text(
-                '${DateTimeUtil.calculateOvertime(list[index].checkOut)} hrs',
+                '${DateTimeUtil.calculateOvertime(list[index].checkOut).toStringAsFixed(2)} hrs',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -152,7 +152,7 @@ class HomePage extends StatelessWidget {
       readOnly: true,
       onTap: () => cubit.onCheckInOutTap(context,
           empentry: emp,
-          isChekIn: true,
+          isChekIn: isChekIn,
           row: index,
 
           //TODO: chaneg worksheet name
@@ -166,4 +166,7 @@ class HomePage extends StatelessWidget {
           border: OutlineInputBorder()),
     );
   }
+
+
+
 }

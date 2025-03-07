@@ -49,7 +49,7 @@ class HomeCubit extends Cubit<HomeState> {
 
           DateTime newDT = DateTime(dateTime.year, dateTime.month, dateTime.day,
               value.hour, value.minute);
-
+          isChekIn ? empentry.checkIn = newDT : empentry.checkOut = newDT;
           updateGsheet(empentry, row, worksheet);
         }
       },
