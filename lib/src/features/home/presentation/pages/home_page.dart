@@ -28,19 +28,23 @@ class HomePage extends StatelessWidget {
                   ),
                   child: SizedBox(
                     width: 200,
-                    child: DropdownButton(
-                        isExpanded: true,
-                        underline: SizedBox.shrink(),
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        borderRadius: BorderRadius.circular(100),
-                        value: 'aman',
-                        items: [
-                          DropdownMenuItem(
-                            child: Text('Aman'),
-                            value: 'aman',
-                          )
-                        ],
-                        onChanged: (x) {}),
+                    child: BlocSelector(
+                        selector: (state) => state is HomeLoaded,
+                        builder: (context, state) {
+                          return DropdownButton(
+                              isExpanded: true,
+                              underline: SizedBox.shrink(),
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              borderRadius: BorderRadius.circular(100),
+                              value: 'aman',
+                              items: [
+                                DropdownMenuItem(
+                                  child: Text('Aman'),
+                                  value: 'aman',
+                                )
+                              ],
+                              onChanged: (x) {});
+                        }),
                   )).paddingSymmetric(horizontal: 16, vertical: 8),
             ),
           ),
@@ -166,7 +170,4 @@ class HomePage extends StatelessWidget {
           border: OutlineInputBorder()),
     );
   }
-
-
-
 }

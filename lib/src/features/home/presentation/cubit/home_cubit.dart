@@ -8,6 +8,8 @@ part 'home_state.dart';
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeInitial());
 
+  fetchDates() {}
+
   fetchGsheets({String? date}) async {
     date ??= DateTime.now().toString().split(' ')[0];
     emit(HomeLoading());

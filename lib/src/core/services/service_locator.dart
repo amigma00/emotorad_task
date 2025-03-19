@@ -50,8 +50,8 @@ Future<void> setupLocator() async {
   // );
 
   //Cubits
-  sl.registerFactory<HomeCubit>(
-    () => HomeCubit(),
+  sl.registerSingleton<HomeCubit>(
+    HomeCubit(),
   );
   // sl.registerLazySingleton<HomeCubit>(
   //   () => HomeCubit(getUsecase: sl<GetHomeUseCase>()),
