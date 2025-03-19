@@ -1,3 +1,4 @@
+import 'package:emotorad_task/src/core/services/bloc_observer.dart';
 import 'package:emotorad_task/src/core/services/gsheeets_service.dart';
 import 'package:emotorad_task/src/core/services/service_locator.dart';
 import 'package:emotorad_task/src/models/employee_entry.dart';
@@ -6,9 +7,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit() : super(HomeInitial());
+  HomeCubit() : super(HomeInitial()) {
+    loadData();
+  }
+  loadData() async {
+    fetchDates();
+    await fetchGsheets();
+  }
 
-  fetchDates() {}
+  fetchDates() async {
+    try {
+      final employess = await sl<GoogleSheetsApis>().fetchSheetNames();
+      employess.remove('employees');
+
+      emit(LoadDropDown(dropDowns: employess));
+    } catch (e) {
+      emit(HomeError(message: e.toString()));
+    }
+  }
 
   fetchGsheets({String? date}) async {
     date ??= DateTime.now().toString().split(' ')[0];
@@ -16,7 +32,7 @@ class HomeCubit extends Cubit<HomeState> {
     try {
       final data = await sl<GoogleSheetsApis>().fetchAttendanceData(date);
       final dates = convertSheetDates(data);
-
+      fetchDates();
       emit(HomeLoaded(data: dates));
     } catch (e) {
       emit(HomeError(message: e.toString()));

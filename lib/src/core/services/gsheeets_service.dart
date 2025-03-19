@@ -20,12 +20,18 @@ class GoogleSheetsService {
       final todayDate = DateTime.now().toString().split(' ')[0];
       final existingSheet =
           await ss.worksheetByTitle(todayDate)?.values.allRows();
-      if (existingSheet == null) {
+      if (existingSheet?.isEmpty ?? true) {
         DateTime now = DateTime.now();
         DateTime nineAM = DateTime(now.year, now.month, now.day, 9, 0, 0);
         DateTime sixPM = DateTime(now.year, now.month, now.day, 18, 0, 0);
         final newSheet = await ss.addWorksheet(todayDate);
-        final employees = sl<SharedPref>().getEmployees();
+        final worksheet = ss.worksheetByTitle("employees");
+        if (worksheet == null) {
+          throw Exception("Worksheet 'employees' not found.");
+        }
+        final data = await worksheet.values.allRows();
+        final employees =
+            data.map((row) => row.isNotEmpty ? row[0] : "").toList();
         for (int i = 0; i < employees.length; i++) {
           await newSheet.values.appendRow([
             employees[i],
@@ -45,6 +51,32 @@ class GoogleSheetsService {
 class GoogleSheetsApis {
   final Spreadsheet _ss;
   GoogleSheetsApis(this._ss);
+
+  Future<List<String>> fetchEmployees() async {
+    try {
+      final worksheet = _ss.worksheetByTitle("employees");
+      if (worksheet == null) {
+        throw Exception("Worksheet 'employees' not found.");
+      }
+
+      final data = await worksheet.values.allRows();
+
+      // Assuming employee names are in the first column
+      return data.map((row) => row.isNotEmpty ? row[0] : "").toList();
+    } catch (e) {
+      print("Error fetching employees: $e");
+      throw Exception("Failed to fetch employees.");
+    }
+  }
+
+  Future<List<String>> fetchSheetNames() async {
+    try {
+      return _ss.sheets.map((sheet) => sheet.title).toList();
+    } catch (e) {
+      print("Error fetching sheet names: $e");
+      throw Exception("Failed to fetch sheet names.");
+    }
+  }
 
   /// Fetch Attendance Data**
   Future<List<List<String>>> fetchAttendanceData(String date) async {
@@ -73,7 +105,9 @@ class GoogleSheetsApis {
     return response ?? false;
   }
 
-  Future<void> addEmployee({
+  /// **Add Attendance**
+
+  Future<void> addAttendance({
     required String employeeName,
     required String checkIn,
     required String checkOut,

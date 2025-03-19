@@ -11,7 +11,6 @@ class HomePage extends StatelessWidget {
   final cubit = sl<HomeCubit>();
   @override
   Widget build(BuildContext context) {
-    cubit.fetchGsheets();
     return BlocProvider(
       create: (context) => cubit,
       child: Scaffold(
@@ -28,23 +27,30 @@ class HomePage extends StatelessWidget {
                   ),
                   child: SizedBox(
                     width: 200,
-                    child: BlocSelector(
-                        selector: (state) => state is HomeLoaded,
-                        builder: (context, state) {
-                          return DropdownButton(
+                    child: BlocSelector<HomeCubit, HomeState, List<String>>(
+                      selector: (state) {
+                        if (state is LoadDropDown) {
+                          return state.dropDowns;
+                        } else {
+                          return [];
+                        }
+                      },
+                      builder: (context, state) => state.isEmpty
+                          ? SizedBox.shrink()
+                          : DropdownButton(
                               isExpanded: true,
                               underline: SizedBox.shrink(),
                               padding: EdgeInsets.symmetric(horizontal: 16),
                               borderRadius: BorderRadius.circular(100),
-                              value: 'aman',
-                              items: [
-                                DropdownMenuItem(
-                                  child: Text('Aman'),
-                                  value: 'aman',
-                                )
-                              ],
-                              onChanged: (x) {});
-                        }),
+                              value: state.last,
+                              items: List.generate(state.length, (index) {
+                                return DropdownMenuItem(
+                                  value: state[index],
+                                  child: Text(state[index]),
+                                );
+                              }),
+                              onChanged: (x) {}),
+                    ),
                   )).paddingSymmetric(horizontal: 16, vertical: 8),
             ),
           ),

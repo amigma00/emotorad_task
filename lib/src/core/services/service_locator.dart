@@ -7,8 +7,8 @@ import 'package:get_it/get_it.dart';
 final sl = GetIt.instance;
 
 setupSf() async {
-  final sharedPref = await SharedPrefService.init();
-  sl.registerSingleton<SharedPref>(SharedPref(sharedPref));
+  // final sharedPref = await SharedPrefService.init();
+  // sl.registerSingleton<SharedPref>(SharedPref(sharedPref));
   debugPrintStack(label: 'SF initialized');
 }
 
@@ -19,7 +19,7 @@ setupGS() async {
 
 Future<void> setupLocator() async {
 //initialization
-  await setupSf();
+  // await setupSf();
   await setupGS();
 //others
 
