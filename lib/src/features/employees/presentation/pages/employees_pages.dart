@@ -26,41 +26,58 @@ class EmployeesPage extends StatelessWidget {
               children: [
                 ColoredBox(
                   color: Colors.blueGrey,
-                  child: TextField(
-                    controller: cubit.nameController,
-                    decoration: InputDecoration(
-                      suffixIcon: TextButton(
-                        style: ButtonStyle(
-                          padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                          backgroundColor: WidgetStatePropertyAll(Colors.blue),
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8))),
+                  child: Form(
+                    key: cubit.key,
+                    child: TextFormField(
+                      validator: (value) {
+                        // Regular expression to match only alphabets (letters)
+                        final RegExp regex = RegExp(r'^[a-z A-Z]+$');
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter some text'; // Handle empty input
+                        } else if (!regex.hasMatch(value)) {
+                          return 'Only alphabets are allowed'; // Handle invalid input
+                        }
+                        return null; // Return null if the input is valid
+                      },
+                      controller: cubit.nameController,
+                      decoration: InputDecoration(
+                        suffixIcon: TextButton(
+                          style: ButtonStyle(
+                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                            backgroundColor:
+                                WidgetStatePropertyAll(Colors.blue),
+                            shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8))),
+                          ),
+                          onPressed: () {
+                            if (cubit.key.currentState!.validate()) {
+                              cubit.addEmployee(cubit.nameController.text);
+                            }
+                            //  else {
+                            //   ScaffoldMessenger.of(context)
+                            //       .showSnackBar(SnackBar(
+                            //     content: Text('Name cannot be empty'),
+                            //   ));
+                            // }
+                          },
+                          child: Text(
+                            'Submit',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ).paddingOnly(right: 16),
+                        fillColor: Colors.white,
+                        filled: true,
+                        hintText: '+ Add Employee',
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(8.0), // Rounded corners
+                          borderSide:
+                              BorderSide(color: Colors.grey), // Border color
                         ),
-                        onPressed: () {
-                          if (cubit.nameController.text.isNotEmpty) {
-                            cubit.addEmployee(cubit.nameController.text);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text('Name cannot be empty'),
-                            ));
-                          }
-                        },
-                        child: Text(
-                          'Submit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ).paddingOnly(right: 16),
-                      fillColor: Colors.white,
-                      filled: true,
-                      hintText: '+ Add Employee',
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(8.0), // Rounded corners
-                        borderSide:
-                            BorderSide(color: Colors.grey), // Border color
                       ),
-                    ),
-                  ).paddingAll(10),
+                    ).paddingAll(10),
+                  ),
                 ),
                 Expanded(
                   child: ListView.builder(

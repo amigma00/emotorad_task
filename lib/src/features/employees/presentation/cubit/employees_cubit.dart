@@ -13,6 +13,7 @@ class EmployeesCubit extends Cubit<EmployeesState> {
   final RemoveEmployee _removeEmployee;
 
   TextEditingController nameController = TextEditingController();
+  GlobalKey<FormState> key = GlobalKey<FormState>();
 
   EmployeesCubit({
     required FetchEmployees fetchEmployeesUseCase,
