@@ -1,9 +1,8 @@
 // import 'package:googleapis/sheets/v4.dart' as sheets;
 // import 'package:googleapis_auth/auth_io.dart';
 import 'dart:convert';
-import 'package:emotorad_task/src/core/services/service_locator.dart';
-import 'package:emotorad_task/src/core/services/shared_services.dart';
-import 'package:emotorad_task/src/models/employee_entry.dart';
+import 'package:emotorad_task/src/features/home/domain/entities/employee_entry.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gsheets/gsheets.dart';
 
@@ -15,7 +14,7 @@ class GoogleSheetsService {
           .loadString('assets/emotorad-task-aea5a30fae16.json'));
       GSheets gSheets = GSheets(credentials);
       Spreadsheet ss = await gSheets.spreadsheet(spreadsheetId);
-      print("Google Sheets initialized successfully!");
+      debugPrint("Google Sheets initialized successfully!");
 
       final todayDate = DateTime.now().toString().split(' ')[0];
       final existingSheet =
@@ -36,13 +35,14 @@ class GoogleSheetsService {
           await newSheet.values.appendRow([
             employees[i],
             nineAM.toIso8601String(),
-            sixPM.toIso8601String()
+            sixPM.toIso8601String(),
+            true
           ]);
         }
       }
       return ss;
     } catch (e) {
-      print("Error initializing Google Sheets: $e");
+      debugPrint("Error initializing Google Sheets: $e");
       throw Exception("Failed to initialize Google Sheets");
     }
   }
@@ -64,16 +64,24 @@ class GoogleSheetsApis {
       // Assuming employee names are in the first column
       return data.map((row) => row.isNotEmpty ? row[0] : "").toList();
     } catch (e) {
-      print("Error fetching employees: $e");
+      debugPrint("Error fetching employees: $e");
       throw Exception("Failed to fetch employees.");
     }
   }
 
   Future<List<String>> fetchSheetNames() async {
     try {
-      return _ss.sheets.map((sheet) => sheet.title).toList();
+      final credentials = jsonDecode(await rootBundle
+          .loadString('assets/emotorad-task-aea5a30fae16.json'));
+      GSheets gSheets = GSheets(credentials);
+      const String spreadsheetId =
+          "1x6e9JXDz3cj7xu3K13ox_d6f_V-FRlObwxpX2ivEro4";
+
+      Spreadsheet ss = await gSheets.spreadsheet(spreadsheetId);
+
+      return ss.sheets.map((sheet) => sheet.title).toList();
     } catch (e) {
-      print("Error fetching sheet names: $e");
+      debugPrint("Error fetching sheet names: $e");
       throw Exception("Failed to fetch sheet names.");
     }
   }
@@ -84,7 +92,7 @@ class GoogleSheetsApis {
       final response = await _ss.worksheetByTitle(date)?.values.allRows();
       return response ?? [];
     } catch (e) {
-      print("Error fetching attendance data: $e");
+      debugPrint("Error fetching attendance data: $e");
       throw Exception("Failed to fetch attendance data.");
     }
   }
@@ -99,9 +107,10 @@ class GoogleSheetsApis {
     final response = await worksheet?.values.insertRow(row + 1, [
       entry.employeeName,
       entry.checkIn.toString(),
-      entry.checkOut.toString()
+      entry.checkOut.toString(),
+      entry.isPresent
     ]);
-    print("Attendance updated successfully!");
+    debugPrint("Attendance updated successfully!");
     return response ?? false;
   }
 
@@ -111,10 +120,33 @@ class GoogleSheetsApis {
     required String employeeName,
     required String checkIn,
     required String checkOut,
+    required bool isPresent,
     required String date,
   }) async {
     final worksheet = _ss.worksheetByTitle(date);
-    await worksheet?.values.appendRow([employeeName, checkIn, checkOut]);
+    await worksheet?.values
+        .appendRow([employeeName, checkIn, checkOut, isPresent]);
+  }
+
+  Future<void> addEmployees({
+    required String employeeName,
+  }) async {
+    final worksheet = _ss.worksheetByTitle('employees');
+    await worksheet?.values.appendRow([employeeName]);
+  }
+
+  /// **Remove Employee**
+  Future<void> removeEmployeeByRowIndex({
+    required int rowIndex,
+  }) async {
+    final worksheet = _ss.worksheetByTitle('employees');
+
+    if (worksheet == null) {
+      throw Exception('Worksheet "employees" not found');
+    }
+
+    // Delete the row at the specified index
+    await worksheet.deleteRow(rowIndex + 1);
   }
 
   // Future<void> removeEmployee(String employeeName) async {

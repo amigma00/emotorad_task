@@ -1,10 +1,6 @@
+import 'package:emotorad_task/src/features/navigation/presentation/cubit/navigation_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-  import 'package:flutter_bloc/flutter_bloc.dart';
-  import 'package:meta/meta.dart';
-
-  part 'navigation_state.dart';
-  
-  class NavigationCubit extends Cubit<NavigationState> {
-    NavigationCubit() : super(NavigationInitial());
-  }
-  
+class NavigationCubit extends Cubit<NavigationState> {
+  NavigationCubit() : super(NavigationInitial());
+}

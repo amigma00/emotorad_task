@@ -1,17 +1,24 @@
+import 'package:emotorad_task/src/features/employees/data/sources/employees_data_source.dart';
+import 'package:emotorad_task/src/features/employees/domain/entities/employee.dart';
+import 'package:emotorad_task/src/features/employees/domain/repositories/repositories.dart';
 
-    import '../sources/sources.dart';
-    import '../../domain/repositories/repositories.dart';
-    
-    class EmployeesRepositoryImp implements EmployeesRepository{
+class EmployeesRepositoryImpl implements EmployeesRepository {
+  final EmployeesDataSource _dataSource;
 
-        final EmployeesRemoteDataSource remoteDataSource;
-        EmployeesRepositoryImp({required this.remoteDataSource});
-      
-        // ... example ...
-        //
-        // Future<User> getUser(String userId) async {
-        //     return remoteDataSource.getUser(userId);
-        //   }
-        // ...
-    }
-    
+  EmployeesRepositoryImpl(this._dataSource);
+
+  @override
+  Future<List<Employee>> fetchEmployees() async {
+    return await _dataSource.fetchEmployees();
+  }
+
+  @override
+  Future<void> addEmployee(String employeeName) async {
+    await _dataSource.addEmployee(employeeName);
+  }
+
+  @override
+  Future<void> removeEmployeeByRowIndex(int rowIndex) async {
+    await _dataSource.removeEmployeeByRowIndex(rowIndex);
+  }
+}

@@ -5,16 +5,21 @@ class DateTimeUtil {
     return DateFormat.jm().format(date);
   }
 
-  static double calculateOvertime(DateTime checkOutTime,
-      {int standardHour = 18, int standardMinute = 0}) {
-    DateTime standardTime = DateTime(checkOutTime.year, checkOutTime.month,
-        checkOutTime.day, standardHour, standardMinute, 0);
+  static String calculateOvertime(DateTime checkInTime, DateTime checkOutTime,
+      {int standardHours = 9}) {
+    Duration totalWorked = checkOutTime.difference(checkInTime);
+    int totalMinutes = totalWorked.inMinutes;
+    int standardMinutes = standardHours * 60;
 
-    if (checkOutTime.isAfter(standardTime)) {
-      Duration overtime = checkOutTime.difference(standardTime);
-      return overtime.inMinutes / 60.0; // Convert minutes to decimal hours
+    if (totalMinutes > standardMinutes) {
+      int overtimeMinutes = totalMinutes - standardMinutes;
+      int overtimeHours = overtimeMinutes ~/ 60;
+      int remainingMinutes = overtimeMinutes % 60;
+
+      return "$overtimeHours h ${remainingMinutes > 0 ? '$remainingMinutes m' : ''}"
+          .trim();
     }
 
-    return 0.0; // No overtime
+    return "--";
   }
 }
